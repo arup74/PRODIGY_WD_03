@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Prodigy Tic-Tac-Toe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Gradient Circles */
+    .circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00c6ff, #3b82f6);
+      margin: 10px;
+      display: inline-block;
+    }
+
+    /* Fading Gradient Background */
+    .fade {
+      background: linear-gradient(180deg, rgba(59,130,246,0.4), transparent);
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px;
+    }
+
+    .game-container {
+      background: #1e293b;
+      padding: 20px;
+      max-width: 350px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 8px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #0f172a;
+      border-radius: 8px;
+      font-size: 40px;
+      line-height: 100px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    button {
+      padding: 8px 15px;
+      background: linear-gradient(135deg, #2563eb, #00c6ff);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🎮 Arup’s Tic Tac Toe</h2>
+
+<!-- Decorative UI Elements -->
+<div>
+  <div class="circle"></div>
+  <div class="circle"></div>
+</div>
+
+<div class="fade">
+
+  <div class="game-container">
+    <div>
+      <button onclick="setMode('pvp')">Player vs Player</button>
+      <button onclick="setMode('ai')">Player vs Computer</button>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <p id="status"></p>
+
+    <button onclick="resetGame()">Restart Game</button>
+  </div>
+
+</div>
+
+<script>
+  let board = ["", "", "", "", "", "", "", "", ""];
+  let currentPlayer = "X";
+  let gameActive = true;
+  let mode = "pvp";
+
+  const boardDiv = document.getElementById("board");
+  const statusDiv = document.getElementById("status");
+
+  const winPatterns = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  function setMode(selectedMode){
+    mode = selectedMode;
+    resetGame();
+  }
+
+  function createBoard(){
+    boardDiv.innerHTML = "";
+    board.forEach((_, index) => {
+      let cell = document.createElement("div");
+      cell.className = "cell";
+      cell.onclick = () => handleClick(index);
+      boardDiv.appendChild(cell);
+    });
+  }
+
+  function handleClick(index){
+    if(board[index] !== "" || !gameActive) return;
+
+    board[index] = currentPlayer;
+    updateBoard();
+
+    if(checkWinner()){
+      statusDiv.innerText = `🎉 Player ${currentPlayer} Wins!`;
+      gameActive = false;
+      return;
+    }
+
+    if(board.every(cell => cell !== "")){
+      statusDiv.innerText = "🤝 It's a Draw!";
+      gameActive = false;
+      return;
+    }
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+    if(mode === "ai" && currentPlayer === "O"){
+      computerMove();
+    }
+  }
+
+  function computerMove(){
+    let emptyCells = board.map((val, idx) => val === "" ? idx : null).filter(v => v !== null);
+    let randomMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    handleClick(randomMove);
+  }
+
+  function updateBoard(){
+    const cells = document.getElementsByClassName("cell");
+    board.forEach((val, i) => {
+      cells[i].innerText = val;
+    });
+  }
+
+  function checkWinner(){
+    return winPatterns.some(pattern => {
+      const [a,b,c] = pattern;
+      return board[a] && board[a] === board[b] && board[b] === board[c];
+    });
+  }
+
+  function resetGame(){
+    board = ["","","","","","","","",""];
+    currentPlayer = "X";
+    gameActive = true;
+    statusDiv.innerText = "";
+    createBoard();
+  }
+
+  createBoard();
+</script>
+
+</body>
+</html>
+
